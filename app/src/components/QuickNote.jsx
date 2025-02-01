@@ -1,6 +1,6 @@
 import React, { useState } from "react";
 import { useNavigation } from "@react-navigation/native";
-import { View, FlatList, Image } from "react-native";
+import { View, FlatList } from "react-native";
 import {
   FAB,
   Modal,
@@ -12,9 +12,9 @@ import {
   Searchbar,
 } from "react-native-paper";
 import { v4 as uuidv4 } from "uuid";
-import { formatDate } from "../utils";
 import data from "../services/notes";
 import styles from "../styles";
+import NotesItem from "./NoteItem";
 
 export default function QuickNote() {
   const navigation = useNavigation();
@@ -54,25 +54,12 @@ export default function QuickNote() {
       <View style={styles.searchContainer}>
         <Searchbar placeholder="Search" />
       </View>
+      {/* <Image source={require("../../assets/icon.png")} style={{ width: 30, height: 40 }} /> */}
       <FlatList
         data={notes}
         keyExtractor={(item) => item.id}
         renderItem={({ item }) => (
-          <Card style={[styles.card, { backgroundColor: item.color }]}>
-            <Card.Title
-              title={item.title}
-              right={(props) => (
-                <IconButton
-                  {...props}
-                  icon="chevron-right"
-                  onPress={() =>
-                    navigation.navigate("DetailScreen", { id: item.id })
-                  }
-                />
-              )}
-              subtitle={formatDate(item.dateCreated)}
-            />
-          </Card>
+          <NotesItem note={item} deleteNote={deleteNote} />
         )}
         style={{ flex: 1, padding: 5 }}
       />
@@ -81,7 +68,7 @@ export default function QuickNote() {
           visible={visible}
           onDismiss={toggleModal}
           contentContainerStyle={styles.modal}
-          
+          style={{ position: "absolute", top: "auto" }}
         >
           <TextInput
             label="Title"

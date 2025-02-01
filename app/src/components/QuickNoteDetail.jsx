@@ -10,6 +10,7 @@ import {
   Text,
   Card,
   IconButton,
+  useTheme,
 } from "react-native-paper";
 import { v4 as uuidv4 } from "uuid";
 import { formatDate } from "../utils";
@@ -17,6 +18,7 @@ import notes from "../services/notes";
 import styles from "../styles";
 
 export default function QuickNoteDetail({id}) {
+    const theme = useTheme();
   const navigation = useNavigation();
     const [note, setNote] = useState(null);
     const [title, setTitle] = useState(note?.title);
@@ -50,13 +52,26 @@ export default function QuickNoteDetail({id}) {
         <ScrollView contentContainerStyle={styles.noteDetailContainer}>
             <TextInput label="Title" value={title} mode="outlined" onChangeText={setTitle} />
             <TextInput
-                label="Content"
+                // label="Content"
                 value={content}
                 onChangeText={setContent}
-                mode="outlined"
+                // mode="outlined"
                 multiline
-                style={{ height: 300 }}
+                style={{
+                    flex: 1,
+                    textAlignVertical: "top",
+                    fontFamily: "monospace",
+                    fontSize: 16,
+                    // backgroundColor: "#FFFBEA",
+                    backgroundColor: theme.colors.surface,
+                    borderRadius: 8,
+                    padding: 5,
+                    marginTop: 10,
+                  }}
+                  underlineColor="transparent"
+                  activeUnderlineColor="transparent" 
             />
+            
             <Button
                 mode="contained"
                 style={{ marginTop: 10 }}
