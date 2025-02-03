@@ -1,0 +1,21 @@
+{
+  "background_color": "#ffffff",
+  "display": "standalone",
+  "lang": "en",
+  "name": "Quick Note",
+  "short_name": "Quick Note",
+  "start_url": "/?utm_source=web_app_manifest",
+  "orientation": "portrait",
+  "related_applications": [
+    {
+      "platform": "itunes",
+      "id": "com.mgregchi.quicknote"
+    },
+    {
+      "platform": "play",
+      "url": "http://play.google.com/store/apps/details?id=com.mgregchi.quicknote",
+      "id": "com.mgregchi.quicknote"
+    }
+  ],
+  "prefer_related_applications": true
+}
