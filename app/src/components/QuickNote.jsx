@@ -1,5 +1,4 @@
 import React, { useState } from "react";
-import { useNavigation } from "@react-navigation/native";
 import { View, FlatList } from "react-native";
 import {
   FAB,
@@ -7,68 +6,44 @@ import {
   Portal,
   TextInput,
   Button,
-  Card,
-  IconButton,
+  useTheme,
   Searchbar,
 } from "react-native-paper";
-import { v4 as uuidv4 } from "uuid";
-import data from "../services/notes";
+import NotesItem from "./NotesItem";
 import styles from "../styles";
-import NotesItem from "./NoteItem";
+// import { useNotes } from "../services/notes";
+import { useNotes } from "../context/NoteContext";
 
-export default function QuickNote() {
-  const navigation = useNavigation();
-  const [visible, setVisible] = useState(false);
-  const [notes, setNotes] = useState(data);
-  const [title, setTitle] = useState("");
-  const [content, setContent] = useState("");
-  const [selectedColor, setSelectedColor] = useState("#fff");
-
-  const toggleModal = () => setVisible(!visible);
-
-  const addNote = () => {
-    if (title || content) {
-      setNotes([
-        ...notes,
-        {
-          id: uuidv4(),
-          title,
-          content,
-          color: selectedColor,
-          dateCreated: new Date().toISOString(),
-        },
-      ]);
-      setTitle("");
-      setContent("");
-      setSelectedColor("#fff");
-      toggleModal();
-    }
-  };
-
-  const deleteNote = (id) => {
-    setNotes(notes.filter((note) => note.id !== id));
-  };
+export default function QuickNote({ navigation }) {
+  const {
+    notes,
+    addNote,
+    setContent,
+    setTitle,
+    title,
+    content,
+    visible,
+    toggleModal,
+  } = useNotes();
+  const theme = useTheme();
 
   return (
     <React.Fragment>
       <View style={styles.searchContainer}>
         <Searchbar placeholder="Search" />
       </View>
-      {/* <Image source={require("../../assets/icon.png")} style={{ width: 30, height: 40 }} /> */}
       <FlatList
         data={notes}
         keyExtractor={(item) => item.id}
-        renderItem={({ item }) => (
-          <NotesItem note={item} deleteNote={deleteNote} />
-        )}
+        renderItem={({ item }) => <NotesItem note={item} />}
         style={{ flex: 1, padding: 5 }}
       />
       <Portal>
         <Modal
           visible={visible}
           onDismiss={toggleModal}
-          contentContainerStyle={styles.modal}
-          style={{ position: "absolute", top: "auto" }}
+          contentContainerStyle={styles.modalContainer}
+          style={styles.modal}
         >
           <TextInput
             label="Title"
@@ -82,15 +57,20 @@ export default function QuickNote() {
             onChangeText={setContent}
             mode="outlined"
             multiline
-            style={{ marginTop: 10, height: 100 }}
+            // style={{ marginTop: 10, height: 100 }}
+            style={[
+              styles.noteDetailContent,
+              { height: 100, backgroundColor: theme.colors.surface },
+            ]}
           />
-          <Button mode="contained" onPress={addNote} style={{ marginTop: 20 }}>
+          <Button mode="contained" onPress={addNote} style={styles.button}>
             Save
           </Button>
         </Modal>
       </Portal>
       <FAB
-        style={{ position: "absolute", right: 16, bottom: 16 }}
+        // style={{ position: "absolute", right: 16, bottom: 16 }}
+        style={styles.fab}
         icon="plus"
         onPress={toggleModal}
       />

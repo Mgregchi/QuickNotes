@@ -11,8 +11,8 @@ export default function HomeScreen({ navigation }) {
       <Appbar.Header>
         <Appbar.Content title="Quick Note" />
         <Appbar.Action
-          icon="account-circle-outline"
-          onPress={() => navigation.navigate("ProfileScreen")}
+          icon="cog"
+          onPress={() => navigation.navigate("SettingsScreen")}
         />
       </Appbar.Header>
       <View style={styles.container}>

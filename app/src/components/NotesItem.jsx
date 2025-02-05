@@ -1,17 +1,18 @@
 import React, { useState } from "react";
-import { View, FlatList, TouchableOpacity } from "react-native";
+import { View, FlatList } from "react-native";
 import {
   Card,
   IconButton,
   Menu,
   PaperProvider,
-  Button,
   Divider,
   Chip,
-    Portal,
-    Modal,
+  Portal,
+  Modal,
 } from "react-native-paper";
 import { useNavigation } from "@react-navigation/native";
+// import { useNotes, colors } from "../services/notes";
+import { useNotes, colors } from "../context/NoteContext";
 import { formatDate } from "../utils";
 import styles from "../styles";
 
@@ -67,18 +68,10 @@ export function NoteItemV1({ note }) {
 
 export default function NoteItem({ note }) {
   const navigation = useNavigation();
+  const { deleteNote, updateNote } = useNotes();
   const [visible, setVisible] = React.useState(false);
   const [selectedColor, setSelectedColor] = React.useState(note.color);
   const [colorsVisible, setColorsVisible] = React.useState(false);
-  const colors = [
-    { id: "1", color: "#fff" },
-    { id: "2", color: "#f00" },
-    { id: "3", color: "#0f0" },
-    { id: "4", color: "#00f" },
-    { id: "5", color: "#ff0" },
-    { id: "6", color: "#f0f" },
-    { id: "7", color: "#0ff" },
-  ];
 
   const openMenu = () => setVisible(true);
   const closeMenu = () => setVisible(false);
@@ -87,34 +80,65 @@ export default function NoteItem({ note }) {
     setColorsVisible(true);
     closeMenu();
   };
-  const hideColorPicker = () => setColorsVisible(false);
+  const hideColorPicker = () => {
+    updateNote(note.id, note.title, note.content, selectedColor);
+    setColorsVisible(false);
+  };
+
+  const handleViewDetail = () => {
+    navigation.navigate("DetailScreen", { id: note.id });
+    closeMenu();
+  };
 
   return (
     <View>
-      <Card style={[styles.card, { backgroundColor: selectedColor }]}>
+      <Card
+        style={[styles.card, { backgroundColor: selectedColor }]}
+        onPress={handleViewDetail}
+        onLongPress={openMenu}
+      >
         <Card.Title
           title={note.title}
+          titleStyle={{
+            color: note.backgroundColor === "#fff" ? "#000" : "#fff",
+          }}
           right={(props) => (
             <Menu
               visible={visible}
               onDismiss={closeMenu}
               anchor={
-                <IconButton {...props} icon="dots-vertical" onPress={openMenu} />
+                <IconButton
+                  {...props}
+                  icon="dots-vertical"
+                  onPress={openMenu}
+                  iconColor={note.backgroundColor === "#fff" ? "#000" : "#fff"}
+                />
               }
             >
-              <Menu.Item onPress={() => navigation.navigate("DetailScreen", { id: note.id })} title="Edit" />
+              <Menu.Item onPress={handleViewDetail} title="Edit" />
               <Menu.Item onPress={showColorPicker} title="Change color" />
               <Divider />
-              <Menu.Item onPress={() => {}} title="Delete" trailingIcon="delete" />
+              <Menu.Item
+                onPress={() => deleteNote(note.id)}
+                title="Delete"
+                trailingIcon="delete"
+              />
             </Menu>
           )}
           subtitle={formatDate(note.dateCreated)}
+          subtitleStyle={{
+            color: note.backgroundColor === "#fff" ? "#000" : "#fff",
+          }}
         />
       </Card>
 
       {/* Color Picker Modal */}
       <Portal>
-        <Modal visible={colorsVisible} onDismiss={hideColorPicker} contentContainerStyle={styles.modal}>
+        <Modal
+          visible={colorsVisible}
+          onDismiss={hideColorPicker}
+          contentContainerStyle={[styles.modal, {padding: 0}]}
+        >
           <FlatList
             horizontal
             data={colors}
@@ -126,13 +150,13 @@ export default function NoteItem({ note }) {
                   setSelectedColor(item.color);
                   hideColorPicker();
                 }}
-                style={{ backgroundColor: item.color, margin: 5 }}
+                style={[{backgroundColor: item.color}, styles.colorChip]}
               />
             )}
           />
-          <Button onPress={hideColorPicker} mode="contained" style={{ marginTop: 10 }}>
+          {/* <Button onPress={hideColorPicker} mode="contained" style={{ marginTop: 10 }}>
             Done
-          </Button>
+          </Button> */}
         </Modal>
       </Portal>
     </View>
