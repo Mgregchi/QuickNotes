@@ -1,8 +1,8 @@
 import AsyncStorage from "@react-native-async-storage/async-storage";
 
-
 // Storage key
 const STORAGE_KEY = "user_notes";
+const STORAGE_THEME_KEY = "THEME_PREFERENCE"
 
 // Secure Storage Functions
 const StorageService = {
@@ -33,7 +33,25 @@ const StorageService = {
       console.error("Error deleting item", error);
     }
   },
+  async saveThemePreference(isDark) {
+    try {
+      const jsonValue = JSON.stringify({ isDark });
+      await AsyncStorage.setItem(STORAGE_THEME_KEY, jsonValue);
+    } catch (error) {
+      console.error("Error saving theme preference:", error);
+    }
+  },
   
+  async getThemePreference() {
+    try {
+      const jsonValue = await AsyncStorage.getItem(STORAGE_THEME_KEY);
+      return jsonValue ? JSON.parse(jsonValue).isDark : false; // Default to false (light mode)
+    } catch (error) {
+      console.error("Error fetching theme preference:", error);
+      return false;
+    }
+  },
+
   // Save notes to AsyncStorage
   async saveNotesToLocal(notes) {
     try {

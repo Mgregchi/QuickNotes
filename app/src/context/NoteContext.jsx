@@ -12,8 +12,6 @@ const NoteProvider = ({ children }) => {
   const [userId, setUserId] = useState("default_user"); // TODO: Replace with actual user ID
   const [visible, setVisible] = useState(false);
   const [selectedColor, setSelectedColor] = useState("#fff");
-  const [title, setTitle] = useState("");
-  const [content, setContent] = useState("");
   const { showMessage } = useMessage();
 
   const toggleModal = () => setVisible((prev) => !prev);
@@ -33,6 +31,7 @@ const NoteProvider = ({ children }) => {
 
   useEffect(() => {
     const unsubscribe = NetInfo.addEventListener(async (state) => {
+      //TODO: Also check if user enabled cloud backup
       if (state.isConnected) {
         await syncNotesWithFirebase();
       }
@@ -41,7 +40,8 @@ const NoteProvider = ({ children }) => {
     return () => unsubscribe();
   }, []);
 
-  const syncNotesWithFirebase = async () => {
+  const syncNotesWithFirebase = async (mode = "from") => {
+    //TODO: If no user or user not authenticated, show signin modal
     try {
       const state = await NetInfo.fetch();
       if (!state.isConnected) {
@@ -49,10 +49,14 @@ const NoteProvider = ({ children }) => {
         return;
       }
 
-      const cloudNotes = await SyncService.fetchFromFirebase(userId);
-      if (cloudNotes?.length) {
-        setNotes(cloudNotes);
-        await StorageService.saveNotesToLocal(cloudNotes);
+      if (mode === "from") {
+        const cloudNotes = await SyncService.fetchFromFirebase(userId);
+        if (cloudNotes?.length) {
+          setNotes(cloudNotes);
+          await StorageService.saveNotesToLocal(cloudNotes);
+        }
+      } else {
+        await SyncService.syncToFirebase(userId, notes);
       }
     } catch (error) {
       console.error("Error syncing with Firebase:", error);
@@ -69,12 +73,11 @@ const NoteProvider = ({ children }) => {
     });
   };
 
-  const addNote = async (title, content, backgroundColor) => {
-    if (!title.trim() || !content.trim()) {
+  const addNote = async (title, content, backgroundColor = selectedColor) => {
+    if (!`${title}`.trim() || !`${content}`.trim()) {
       showMessage({ text: "Title and content cannot be empty", type: "info" });
       return;
     }
-
     const newNote = {
       id: uuidv4(),
       title,
@@ -88,16 +91,16 @@ const NoteProvider = ({ children }) => {
       StorageService.saveNotesToLocal(updatedNotes);
       return updatedNotes;
     });
-
-    const state = await NetInfo.fetch();
-    if (state.isConnected) {
-      await SyncService.syncToFirebase(userId, [...notes, newNote]);
-    }
+    toggleModal();
+    await syncNotesWithFirebase("to");
   };
 
   const updateNote = async (id, title, content, backgroundColor) => {
-    if (!title.trim() || !content.trim()) {
-      showMessage({ text: "Please provide a valid title and content", type: "info" });
+    if (!`${title}`.trim() || !`${content}`.trim()) {
+      showMessage({
+        text: "Please provide a valid title and content",
+        type: "info",
+      });
       return;
     }
 
@@ -108,13 +111,8 @@ const NoteProvider = ({ children }) => {
       StorageService.saveNotesToLocal(updatedNotes);
       return updatedNotes;
     });
-
-    const state = await NetInfo.fetch();
-    if (state.isConnected) {
-      await SyncService.syncToFirebase(userId, notes);
-    }
-
     showMessage({ text: "Note updated successfully" });
+    await syncNotesWithFirebase("to");
   };
 
   const deleteNote = async (id) => {
@@ -123,13 +121,8 @@ const NoteProvider = ({ children }) => {
       StorageService.saveNotesToLocal(updatedNotes);
       return updatedNotes;
     });
-
     showMessage({ text: "Note deleted successfully", type: "success" });
-
-    const state = await NetInfo.fetch();
-    if (state.isConnected) {
-      await SyncService.syncToFirebase(userId, notes);
-    }
+    await syncNotesWithFirebase("to");
   };
 
   return (
@@ -138,17 +131,14 @@ const NoteProvider = ({ children }) => {
         notes,
         visible,
         selectedColor,
-        title,
-        content,
         colors,
         toggleModal,
-        setTitle,
-        setContent,
         setSelectedColor,
         getNote,
         addNote,
         deleteNote,
         updateNote,
+        syncNotesWithFirebase
       }}
     >
       {children}

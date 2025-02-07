@@ -33,13 +33,13 @@ const styles = StyleSheet.create({
   },
   card: {
     marginBottom: 10,
-    backgroundColor: "#f8f8f8",
+    // backgroundColor: "#f8f8f8",
   },
   modal: {
     position: "absolute", top: "auto",
   },
   modalContainer: {
-    backgroundColor: "white",
+    // backgroundColor: "#fff",
     padding: 20,
     margin: 10,
     borderRadius: 10,

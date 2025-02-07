@@ -7,6 +7,7 @@ import {
   PaperProvider,
   Divider,
   Chip,
+  useTheme,
   Portal,
   Modal,
 } from "react-native-paper";
@@ -66,12 +67,21 @@ export function NoteItemV1({ note }) {
   );
 }
 
+/**
+ * TODO: Add delete select/all option to the option menu.
+ * Checkbox should appear and items can be selected.
+ * The add fab should change to delete button function.
+ * 
+ * @param {*} param0 
+ * @returns 
+ */
 export default function NoteItem({ note }) {
   const navigation = useNavigation();
   const { deleteNote, updateNote } = useNotes();
   const [visible, setVisible] = React.useState(false);
-  const [selectedColor, setSelectedColor] = React.useState(note.color);
+  const [selectedColor, setSelectedColor] = React.useState(note.backgroundColor);
   const [colorsVisible, setColorsVisible] = React.useState(false);
+  const theme = useTheme();
 
   const openMenu = () => setVisible(true);
   const closeMenu = () => setVisible(false);
@@ -137,7 +147,9 @@ export default function NoteItem({ note }) {
         <Modal
           visible={colorsVisible}
           onDismiss={hideColorPicker}
-          contentContainerStyle={[styles.modal, {padding: 0}]}
+          contentContainerStyle={[styles.modalContainer, {padding: 0, backgroundColor: theme.colors.background}]}
+          theme={theme}
+          style={{alignItems: "center"}}
         >
           <FlatList
             horizontal

@@ -1,21 +1,18 @@
 import React, { useEffect, useState } from "react";
 import { useNavigation, useRoute } from "@react-navigation/native";
 import { ScrollView } from "react-native";
-import {
-  TextInput,
-  Button,
-  useTheme,
-} from "react-native-paper";
+import { TextInput, Button, useTheme } from "react-native-paper";
 // import { useNotes } from "../services/notes";
 import { useNotes } from "../context/NoteContext";
 import styles from "../styles";
 import { useLoading } from "../context/LoadingContext";
 
 export default function QuickNoteDetail() {
+  const [content, setContent] = useState("");
+  const [title, setTitle] = useState("");
   const theme = useTheme();
   const { setLoading } = useLoading();
-  const { getNote, setTitle, setContent, title, content, updateNote } =
-    useNotes();
+  const { getNote, updateNote } = useNotes();
   const [backgroundColor, setBackgroundColor] = useState("");
   const navigation = useNavigation();
   const route = useRoute();
@@ -37,6 +34,8 @@ export default function QuickNoteDetail() {
 
   const saveNote = () => {
     updateNote(id, title, content, backgroundColor);
+    setContent("");
+    setTitle("");
     navigation.navigate("HomeScreen");
   };
 
@@ -52,7 +51,10 @@ export default function QuickNoteDetail() {
         value={content}
         onChangeText={setContent}
         multiline
-        style={[styles.noteDetailContent, {backgroundColor: theme.colors.surface}]}
+        style={[
+          styles.noteDetailContent,
+          { backgroundColor: theme.colors.surface },
+        ]}
         underlineColor="transparent"
         activeUnderlineColor="transparent"
       />

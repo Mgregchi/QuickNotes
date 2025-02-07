@@ -1,5 +1,5 @@
 import React, { useState } from "react";
-import { View, ScrollView, Switch } from "react-native";
+import { ScrollView, Switch } from "react-native";
 import {
   TextInput,
   Button,
@@ -12,21 +12,31 @@ import {
   Portal,
 } from "react-native-paper";
 import { SafeAreaView } from "react-native-safe-area-context";
+import { useTheme } from "../../context/ThemeContext";
+import { useNotes } from "../../context/NoteContext";
 import styles from "../../styles";
 
 const SettingsScreen = ({ navigation }) => {
-  const [darkMode, setDarkMode] = useState(false);
+  const { theme, toggleTheme} = useTheme();
+  const [isDark, setIsDark] = useState(theme.dark);
   const [autoSave, setAutoSave] = useState(true);
   const [cloudBackup, setCloudBackup] = useState(false);
   const [user, setUser] = useState({ email: "mgregchi@gmail.com" });
+  const {syncNotesWithFirebase} = useNotes();
 
   // Account Modal States
   const [modalVisible, setModalVisible] = useState(false);
   const [email, setEmail] = useState(user?.email);
   const [password, setPassword] = useState("");
 
+
+  const handleThemeChange = () => {
+    setIsDark(!isDark);
+    toggleTheme();
+  }
+
   return (
-    <SafeAreaView style={styles.safeArea}>
+    <SafeAreaView style={[styles.safeArea, {backgroundColor: theme.colors.background}]}>
       {/* App Bar */}
       <Appbar.Header>
         <Appbar.BackAction onPress={() => navigation.goBack()} />
@@ -55,8 +65,8 @@ const SettingsScreen = ({ navigation }) => {
             left={(props) => <List.Icon {...props} icon="theme-light-dark" />}
             right={() => (
               <Switch
-                value={darkMode}
-                onValueChange={() => setDarkMode(!darkMode)}
+                value={isDark}
+                onValueChange={handleThemeChange}
               />
             )}
           />
@@ -93,12 +103,12 @@ const SettingsScreen = ({ navigation }) => {
           <List.Item
             title="Backup Now"
             left={(props) => <List.Icon {...props} icon="backup-restore" />}
-            onPress={() => console.log("Backup initiated")}
+            onPress={() => syncNotesWithFirebase("to")}
           />
           <List.Item
             title="Restore Backup"
             left={(props) => <List.Icon {...props} icon="restore" />}
-            onPress={() => console.log("Restore initiated")}
+            onPress={() => syncNotesWithFirebase()}
           />
         </List.Section>
         <Divider style={{ marginVertical: 10 }} />
@@ -110,6 +120,14 @@ const SettingsScreen = ({ navigation }) => {
         >
           Reset to Default
         </Button>
+        <Divider style={{ marginVertical: 10 }} />
+
+        {/* Clear Notes Button */}
+        <Button
+          onPress={() => console.log("Clear All Notes")}
+        >
+          Clear all notes
+        </Button>
       </ScrollView>
 
       {/* Account Modal */}
@@ -117,7 +135,7 @@ const SettingsScreen = ({ navigation }) => {
         <Modal
           visible={modalVisible}
           onDismiss={() => setModalVisible(false)}
-          contentContainerStyle={styles.modalContainer}
+          contentContainerStyle={[styles.modalContainer, {backgroundColor: theme.colors.background}]}
           style={styles.modal}
         >
           <TextInput
