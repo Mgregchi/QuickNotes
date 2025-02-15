@@ -1,66 +1,42 @@
-import React, { useEffect, useState } from "react";
-import { useNavigation, useRoute } from "@react-navigation/native";
+import React from "react";
 import { ScrollView } from "react-native";
-import { TextInput, Button, useTheme } from "react-native-paper";
+import { Text, TextInput, useTheme } from "react-native-paper";
 // import { useNotes } from "../services/notes";
-import { useNotes } from "../context/NoteContext";
 import styles from "../styles";
-import { useLoading } from "../context/LoadingContext";
 
-export default function QuickNoteDetail() {
-  const [content, setContent] = useState("");
-  const [title, setTitle] = useState("");
+export default function QuickNoteDetail({
+  setEditMode,
+  setContent,
+  content,
+  setTitle,
+  title,
+  onSave,
+  id,
+}) {
   const theme = useTheme();
-  const { setLoading } = useLoading();
-  const { getNote, updateNote } = useNotes();
-  const [backgroundColor, setBackgroundColor] = useState("");
-  const navigation = useNavigation();
-  const route = useRoute();
-  const id = route.params?.id;
-  useEffect(() => {
-    const fetchNote = async () => {
-      setLoading(true);
-      const note = await getNote(id);
-      if (note) {
-        setTitle(note.title);
-        setContent(note.content);
-        setBackgroundColor(note.backgroundColor);
-      }
-      setLoading(false);
-    };
-
-    fetchNote();
-  }, [id]);
-
-  const saveNote = () => {
-    updateNote(id, title, content, backgroundColor);
-    setContent("");
-    setTitle("");
-    navigation.navigate("HomeScreen");
-  };
 
   return (
     <ScrollView contentContainerStyle={styles.noteDetailContainer}>
       <TextInput
-        label="Title"
         value={title}
-        mode="outlined"
+        placeholder="Title"
+        style={{ backgroundColor: "transparent" }}
+        underlineColor="transparent"
+        activeUnderlineColor="transparent"
         onChangeText={setTitle}
+        onFocus={() => setEditMode(true)}
+        contentStyle={{ padding: 0 }}
       />
       <TextInput
         value={content}
         onChangeText={setContent}
         multiline
-        style={[
-          styles.noteDetailContent,
-          { backgroundColor: theme.colors.surface },
-        ]}
+        style={[styles.noteDetailContent, { backgroundColor: "transparent" }]}
         underlineColor="transparent"
         activeUnderlineColor="transparent"
+        onFocus={() => setEditMode(true)}
+        contentStyle={{ padding: 0 }}
       />
-      <Button mode="contained" style={{ marginTop: 10 }} onPress={saveNote}>
-        Save
-      </Button>
     </ScrollView>
   );
 }

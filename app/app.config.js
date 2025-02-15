@@ -1,4 +1,5 @@
 import config from "./.idea/config";
+console.log(config);
 
 export default {
   expo: {
@@ -13,9 +14,7 @@ export default {
       resizeMode: "contain",
       backgroundColor: "#ffffff",
     },
-    assetBundlePatterns: [
-      "**/*",
-    ],
+    assetBundlePatterns: ["**/*"],
     ios: {
       supportsTablet: true,
       bundleIdentifier: "com.mgregchi.quicknote",
@@ -41,5 +40,8 @@ export default {
       ],
     ],
     extra: config,
+    updates: {
+      enabled: false,
+    },
   },
 };

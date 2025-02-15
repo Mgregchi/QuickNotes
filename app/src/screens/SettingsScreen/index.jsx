@@ -1,10 +1,8 @@
-import React, { useState } from "react";
+import React, { Fragment, useEffect, useState } from "react";
 import { ScrollView, Switch } from "react-native";
 import {
   TextInput,
   Button,
-  Card,
-  IconButton,
   Appbar,
   List,
   Divider,
@@ -14,29 +12,52 @@ import {
 import { SafeAreaView } from "react-native-safe-area-context";
 import { useTheme } from "../../context/ThemeContext";
 import { useNotes } from "../../context/NoteContext";
+import { useAuth } from "../../context/AuthContext";
 import styles from "../../styles";
 
 const SettingsScreen = ({ navigation }) => {
-  const { theme, toggleTheme} = useTheme();
-  const [isDark, setIsDark] = useState(theme.dark);
+  const { theme, toggleTheme } = useTheme();
+  const [isDark, setIsDark] = useState(theme.isDark);
   const [autoSave, setAutoSave] = useState(true);
   const [cloudBackup, setCloudBackup] = useState(false);
-  const [user, setUser] = useState({ email: "mgregchi@gmail.com" });
-  const {syncNotesWithFirebase} = useNotes();
+  // const [user, setUser] = useState({ email: "mgregchi@gmail.com" });
+  const { syncNotesWithFirebase } = useNotes();
+  const {
+    user,
+    signIn,
+    signOut,
+    createAccount,
+    signInWithGoogle,
+    updatePassword,
+  } = useAuth();
 
   // Account Modal States
   const [modalVisible, setModalVisible] = useState(false);
-  const [email, setEmail] = useState(user?.email);
+  const [email, setEmail] = useState(user?.email ?? "");
   const [password, setPassword] = useState("");
+  const [isSignin, setIsSignin] = useState(true);
 
+  // useEffect(() => {
+  //   setEmail(user?.email);
+  // }, [user]);
 
   const handleThemeChange = () => {
     setIsDark(!isDark);
     toggleTheme();
-  }
+  };
+
+  const handleAuthentication = () => {
+    if (isSignin) {
+      signIn(email, password);
+    } else {
+      createAccount(email, password);
+    }
+  };
 
   return (
-    <SafeAreaView style={[styles.safeArea, {backgroundColor: theme.colors.background}]}>
+    <SafeAreaView
+      style={[styles.safeArea, { backgroundColor: theme.colors.background }]}
+    >
       {/* App Bar */}
       <Appbar.Header>
         <Appbar.BackAction onPress={() => navigation.goBack()} />
@@ -64,10 +85,7 @@ const SettingsScreen = ({ navigation }) => {
             title="Dark Mode"
             left={(props) => <List.Icon {...props} icon="theme-light-dark" />}
             right={() => (
-              <Switch
-                value={isDark}
-                onValueChange={handleThemeChange}
-              />
+              <Switch value={isDark} onValueChange={handleThemeChange} />
             )}
           />
         </List.Section>
@@ -123,9 +141,7 @@ const SettingsScreen = ({ navigation }) => {
         <Divider style={{ marginVertical: 10 }} />
 
         {/* Clear Notes Button */}
-        <Button
-          onPress={() => console.log("Clear All Notes")}
-        >
+        <Button onPress={() => console.log("Clear All Notes")}>
           Clear all notes
         </Button>
       </ScrollView>
@@ -135,7 +151,10 @@ const SettingsScreen = ({ navigation }) => {
         <Modal
           visible={modalVisible}
           onDismiss={() => setModalVisible(false)}
-          contentContainerStyle={[styles.modalContainer, {backgroundColor: theme.colors.background}]}
+          contentContainerStyle={[
+            styles.modalContainer,
+            { backgroundColor: theme.colors.background },
+          ]}
           style={styles.modal}
         >
           <TextInput
@@ -147,22 +166,62 @@ const SettingsScreen = ({ navigation }) => {
             autoCapitalize="none"
             style={{ marginBottom: 10 }}
             disabled={user?.email}
+            focusable
           />
           <TextInput
-            label="Password"
+            label={user?.uid ? "New Password" : "Password"}
             value={password}
             onChangeText={setPassword}
             mode="outlined"
             secureTextEntry
             autoCapitalize="none"
+            focusable
           />
           <Button
-            mode="contained"
-            onPress={() => console.log("Change password")}
-            style={styles.button}
+            value={isSignin}
+            onPress={() => setIsSignin(!isSignin)}
+            style={{ alignSelf: "flex-end" }}
           >
-            Change Password
+            {isSignin ? "Create An Account" : "Sign-in"}
           </Button>
+          {user?.uid ? (
+            <Fragment>
+              <Button
+                mode="contained"
+                onPress={() => updatePassword(password)}
+                style={styles.button}
+              >
+                Change Password
+              </Button>
+              <Button
+                mode="contained"
+                onPress={signOut}
+                style={styles.button}
+                icon={"logout"}
+              >
+                Sign-out
+              </Button>
+            </Fragment>
+          ) : (
+            <Fragment>
+              <Button
+                mode="contained"
+                onPress={handleAuthentication}
+                style={styles.button}
+                icon={"login"}
+              >
+                {isSignin ? "Sign-in" : "Create Account"}
+              </Button>
+              <Button
+                mode="contained"
+                onPress={() => signInWithGoogle()}
+                style={styles.button}
+                icon={"google"}
+              >
+                Google
+              </Button>
+            </Fragment>
+          )}
         </Modal>
       </Portal>
     </SafeAreaView>

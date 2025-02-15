@@ -36,13 +36,27 @@ const styles = StyleSheet.create({
     // backgroundColor: "#f8f8f8",
   },
   modal: {
-    position: "absolute", top: "auto",
+    position: "absolute",
+    top: "auto",
   },
   modalContainer: {
     // backgroundColor: "#fff",
-    padding: 20,
-    margin: 10,
+    padding: 10,
+    margin: 5,
     borderRadius: 10,
+  },
+  themeModalContent: {
+    height: 100,
+    width: "100%",
+    borderTopRightRadius: 18,
+    borderTopLeftRadius: 18,
+    position: "absolute",
+    bottom: 0,
+    justifyContent: "center",
+    padding: 10,
+  },
+  themeCard: {
+    width: 70,
   },
   fab: {
     position: "absolute",

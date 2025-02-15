@@ -1,3 +1,4 @@
+import { AuthProvider } from "./context/AuthContext";
 import { LoadingProvider } from "./context/LoadingContext";
 import { MessageProvider } from "./context/MessageContext";
 import NoteProvider from "./context/NoteContext";
@@ -13,9 +14,11 @@ const MainApplication = ({ snackbarVisible, setSnackbarVisible }) => {
     <PaperProvider theme={theme}>
       <LoadingProvider>
         <MessageProvider>
-          <NoteProvider>
-            <Navigation />
-          </NoteProvider>
+          <AuthProvider>
+            <NoteProvider>
+              <Navigation />
+            </NoteProvider>
+          </AuthProvider>
         </MessageProvider>
       </LoadingProvider>
       <Snackbar

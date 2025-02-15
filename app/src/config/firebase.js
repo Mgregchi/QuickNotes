@@ -1,5 +1,6 @@
 import { getFirestore } from "firebase/firestore";
 import { initializeApp } from "firebase/app";
+import { getAuth, GoogleAuthProvider } from "firebase/auth";
 
 import Constants from "expo-constants";
 
@@ -12,10 +13,14 @@ const firebaseConfig = {
   appId: Constants.expoConfig.extra.firebaseAppId,
 };
 
-
 // Initialize Firebase
 const app = initializeApp(firebaseConfig);
 const db = getFirestore(app);
+const auth = getAuth(app);
 
-export { app, db };
+const googleProvider = new GoogleAuthProvider();
+googleProvider.addScope("profile");
+googleProvider.addScope("email");
+
+export { app, auth, db, googleProvider };
 export default firebaseConfig;

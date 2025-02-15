@@ -4,17 +4,23 @@ import StorageService from "../services/storageService";
 import SyncService from "../services/firebaseService";
 import NetInfo from "@react-native-community/netinfo";
 import { v4 as uuidv4 } from "uuid";
+import { useAuth } from "./AuthContext";
 
 const NoteContext = createContext();
 
 const NoteProvider = ({ children }) => {
+  const { user } = useAuth();
   const [notes, setNotes] = useState([]);
-  const [userId, setUserId] = useState("default_user"); // TODO: Replace with actual user ID
+  // const [userId, setUserId] = useState(user?.uid);
   const [visible, setVisible] = useState(false);
   const [selectedColor, setSelectedColor] = useState("#fff");
   const { showMessage } = useMessage();
 
   const toggleModal = () => setVisible((prev) => !prev);
+
+  // useEffect(() => {
+  //   setUserId(user?.uid);
+  // }, [user]);
 
   useEffect(() => {
     const loadNotes = async () => {
@@ -44,19 +50,19 @@ const NoteProvider = ({ children }) => {
     //TODO: If no user or user not authenticated, show signin modal
     try {
       const state = await NetInfo.fetch();
-      if (!state.isConnected) {
+      if (!state.isConnected || !user?.uid) {
         console.warn("No internet connection. Skipping Firebase sync.");
         return;
       }
 
       if (mode === "from") {
-        const cloudNotes = await SyncService.fetchFromFirebase(userId);
+        const cloudNotes = await SyncService.fetchFromFirebase(user?.uid);
         if (cloudNotes?.length) {
           setNotes(cloudNotes);
           await StorageService.saveNotesToLocal(cloudNotes);
         }
       } else {
-        await SyncService.syncToFirebase(userId, notes);
+        await SyncService.syncToFirebase(user?.uid, notes);
       }
     } catch (error) {
       console.error("Error syncing with Firebase:", error);
@@ -91,7 +97,7 @@ const NoteProvider = ({ children }) => {
       StorageService.saveNotesToLocal(updatedNotes);
       return updatedNotes;
     });
-    toggleModal();
+    showMessage({ text: "New note created" });
     await syncNotesWithFirebase("to");
   };
 
@@ -111,7 +117,7 @@ const NoteProvider = ({ children }) => {
       StorageService.saveNotesToLocal(updatedNotes);
       return updatedNotes;
     });
-    showMessage({ text: "Note updated successfully" });
+    showMessage({ text: "Note updated" });
     await syncNotesWithFirebase("to");
   };
 
@@ -121,8 +127,9 @@ const NoteProvider = ({ children }) => {
       StorageService.saveNotesToLocal(updatedNotes);
       return updatedNotes;
     });
-    showMessage({ text: "Note deleted successfully", type: "success" });
-    await syncNotesWithFirebase("to");
+    showMessage({ text: "Note deleted", type: "success" });
+    // await syncNotesWithFirebase("to");
+    SyncService.deleteNoteFromFirebase(user?.uid, id);
   };
 
   return (
@@ -138,7 +145,7 @@ const NoteProvider = ({ children }) => {
         addNote,
         deleteNote,
         updateNote,
-        syncNotesWithFirebase
+        syncNotesWithFirebase,
       }}
     >
       {children}
