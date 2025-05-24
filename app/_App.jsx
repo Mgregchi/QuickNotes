@@ -1,8 +1,7 @@
-import { View, Text } from "react-native";
 import React, { useEffect, useState } from "react";
 // import { BackHandler, Platform } from "react-native";
 import { StatusBar } from "expo-status-bar";
-import { SafeAreaProvider, SafeAreaView } from "react-native-safe-area-context";
+import { SafeAreaProvider } from "react-native-safe-area-context";
 
 import { ThemeProvider } from "./src/context/ThemeContext";
 import MainApplication from "./src/MainApplication";
@@ -33,17 +32,16 @@ const App = () => {
   //   }, [exitApp]);
   // }
   return (
-      <SafeAreaProvider>
-        <StatusBar style="auto" />
-        <ThemeProvider>
-  
-        <View>
-            <Text>Hello</Text>
-            <MainApplication />
-        </View>
+    <SafeAreaProvider>
+      <StatusBar style="auto" />
+      <ThemeProvider>
+        <MainApplication
+          // setSnackbarVisible={setSnackbarVisible}
+          // snackbarVisible={snackbarVisible}
+        />
       </ThemeProvider>
-    </SafeAreaProvider>        
-  )
-}
+    </SafeAreaProvider>
+  );
+};
 
 export default App;

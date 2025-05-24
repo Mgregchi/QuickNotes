@@ -1,34 +1,25 @@
-import { AuthProvider } from "./context/AuthContext";
+// import { AuthProvider } from "./context/AuthContext";
+import Navigation from "./navigation";
+import NoteProvider from "./context/NoteContext";
+
 import { LoadingProvider } from "./context/LoadingContext";
 import { MessageProvider } from "./context/MessageContext";
-import NoteProvider from "./context/NoteContext";
-// import theme from "./theme";
 import { useTheme } from "./context/ThemeContext";
-import Navigation from "./navigation";
 import { PaperProvider, Snackbar } from "react-native-paper";
 
-const MainApplication = ({ snackbarVisible, setSnackbarVisible }) => {
+const MainApplication = (/*{ snackbarVisible, setSnackbarVisible }*/) => {
   const { theme } = useTheme();
 
   return (
+    <>
     <PaperProvider theme={theme}>
-      <LoadingProvider>
-        <MessageProvider>
-          <AuthProvider>
-            <NoteProvider>
-              <Navigation />
-            </NoteProvider>
-          </AuthProvider>
-        </MessageProvider>
+    <LoadingProvider>
+      <MessageProvider>
+        <Navigation />
+      </MessageProvider>
       </LoadingProvider>
-      <Snackbar
-        visible={snackbarVisible}
-        onDismiss={() => setSnackbarVisible(false)}
-        duration={2000}
-      >
-        Press back again to exit
-      </Snackbar>
     </PaperProvider>
+    </>
   );
 };
 

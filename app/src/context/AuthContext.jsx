@@ -10,8 +10,7 @@ import {
 import { useLoading } from "./LoadingContext";
 import { useMessage } from "./MessageContext";
 import fireerror from "firebase-error-handler";
-// import { getFirebaseErrorMessage } from "firebase-error-handler";
-// import { fireerror } from "../utils";
+
 
 const AuthContext = createContext();
 

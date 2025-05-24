@@ -1,20 +1,22 @@
 import React, { useEffect, useState, createContext, useContext } from "react";
 import { useMessage } from "../context/MessageContext";
-import StorageService from "../services/storageService";
 import SyncService from "../services/firebaseService";
+import StorageService from "../services/storageService";
 import NetInfo from "@react-native-community/netinfo";
 import { v4 as uuidv4 } from "uuid";
-import { useAuth } from "./AuthContext";
+// import { useAuth } from "./AuthContext";
 
 const NoteContext = createContext();
 
 const NoteProvider = ({ children }) => {
-  const { user } = useAuth();
+  // const { user } = useAuth();
+  const [user, setUser] = useState(null);
   const [notes, setNotes] = useState([]);
   // const [userId, setUserId] = useState(user?.uid);
   const [visible, setVisible] = useState(false);
   const [selectedColor, setSelectedColor] = useState("#fff");
-  const { showMessage } = useMessage();
+  // const { showMessage } = useMessage();
+  const showMessage = (e) => console.log(e)
 
   const toggleModal = () => setVisible((prev) => !prev);
 

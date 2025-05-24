@@ -1,5 +1,4 @@
 import config from "./.idea/config";
-console.log(config);
 
 export default {
   expo: {
